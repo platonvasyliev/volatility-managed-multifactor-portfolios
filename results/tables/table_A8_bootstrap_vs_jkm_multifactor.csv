@@ -1,0 +1,4 @@
+,Equal Weights,Equal Risk,Minimum Variance,MVE
+Delta SR,0.281824,0.367805,0.287545,0.359461
+Bootstrap p-value,0.001,0.0,0.0002,0.0003
+JKM one-sided p-value,0.001005,4.2e-05,0.000113,8e-06

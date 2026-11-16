@@ -1,0 +1,9 @@
+,,Equal Weights,Equal Risk,Minimum Variance,MVE
+Panel A: low sentiment,SR unmanaged,0.961571,0.813493,1.044748,1.048561
+Panel A: low sentiment,SR managed,1.193536,1.12453,1.22377,1.413079
+Panel A: low sentiment,Delta SR,0.231965,0.311037,0.179022,0.364518
+Panel A: low sentiment,p-value,0.0273,0.0008,0.0599,0.0533
+Panel B: high sentiment,SR unmanaged,1.277071,1.452723,1.416838,1.277015
+Panel B: high sentiment,SR managed,1.617514,1.910863,1.781106,1.661392
+Panel B: high sentiment,Delta SR,0.340443,0.458139,0.364268,0.384377
+Panel B: high sentiment,p-value,0.0128,0.0106,0.0005,0.0002

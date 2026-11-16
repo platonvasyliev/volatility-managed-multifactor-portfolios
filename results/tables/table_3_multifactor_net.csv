@@ -1,0 +1,7 @@
+,,Equal Weights,Equal Risk,Minimum Variance,MVE
+Unmanaged,SR,0.690849,0.660655,0.502268,0.501811
+Managed,SR,0.381263,0.345834,0.27177,0.305407
+Comparison,Delta SR,-0.309586,-0.314821,-0.230498,-0.196405
+Comparison,p-value,1.0,0.9999,0.9967,0.9765
+Managed,alpha (%),-0.859852,-0.840306,-0.521353,-0.531528
+Managed,t(alpha),-1.891057,-1.890546,-1.80389,-1.150422

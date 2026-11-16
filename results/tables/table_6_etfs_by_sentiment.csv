@@ -1,0 +1,9 @@
+,,"S&P 500, 1980-2023","S&P 500, 2013-2023",MSCI USA Value,MSCI USA Momentum,MSCI USA Quality
+Panel A: low sentiment,SR unmanaged,0.899991,0.974162,0.59387,1.203366,0.991148
+Panel A: low sentiment,SR managed,0.838082,0.853665,0.596161,1.283817,0.853348
+Panel A: low sentiment,Delta SR,-0.061909,-0.120498,0.002291,0.080451,-0.1378
+Panel A: low sentiment,p-value,0.7194,0.7098,0.528,0.3363,0.7232
+Panel B: high sentiment,SR unmanaged,0.200228,0.510272,0.394454,-0.004862,0.476647
+Panel B: high sentiment,SR managed,0.394223,0.610644,0.368463,0.063171,0.592144
+Panel B: high sentiment,Delta SR,0.193995,0.100371,-0.025991,0.068033,0.115497
+Panel B: high sentiment,p-value,0.0232,0.3262,0.6522,0.4082,0.2829

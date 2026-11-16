@@ -1,0 +1,4 @@
+,Market,Size,Value,Profitability,Investment,Momentum,BAB
+Delta SR,0.070652,-0.08311,-0.004247,0.215974,-0.01753,0.447882,0.400184
+Bootstrap p-value,0.1761,0.9571,0.5035,0.0085,0.5813,0.0,0.0
+JKM one-sided p-value,0.149786,0.933326,0.520846,0.007831,0.596141,1e-06,2e-06
