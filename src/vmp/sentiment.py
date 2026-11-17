@@ -7,6 +7,10 @@ median over 1980-2023.
 
 import pandas as pd
 
+from . import data
+from .config import SAMPLE_START, SENTIMENT_END
+from .inference import bootstrap_sharpe_test
+
 HIGH, LOW = "High sentiment", "Low sentiment"
 
 
@@ -31,10 +35,6 @@ def sentiment_table(unmanaged: pd.DataFrame, managed: pd.DataFrame, columns: dic
 
     columns maps a column of `unmanaged`/`managed` to its label in the table.
     """
-    from . import data
-    from .config import SAMPLE_START, SENTIMENT_END
-    from .inference import bootstrap_sharpe_test
-
     unmanaged = unmanaged.loc[SAMPLE_START:SENTIMENT_END]
     regime = sentiment_regimes(unmanaged.index, data.load_sentiment())
     panels = {}

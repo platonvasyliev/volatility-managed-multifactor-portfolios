@@ -1,8 +1,8 @@
 """Build every return series used in the thesis once, and cache it.
 
-Sample: 1980-01 to 2025-12. Managed returns start in 1980-02, because the
-first month is only used to measure volatility. Comparisons between managed and
-unmanaged portfolios therefore use 1980-02 to 2025-12.
+Sample: 1980-02 to 2025-12 for all strategies (see config.SAMPLE_START).
+Each strategy starts holding its position in the first sample month, so no
+trading cost is charged for setting it up.
 """
 
 from dataclasses import dataclass
@@ -64,10 +64,16 @@ def single_factors() -> Strategies:
 
 
 @lru_cache
-def multifactor_weights(shrinkage: bool = True) -> dict[str, pd.DataFrame]:
-    """Weights held in each sample month for the four construction methods."""
+def multifactor_weights(shrinkage: bool = True, with_previous_month: bool = False) -> dict[str, pd.DataFrame]:
+    """Weights held in each sample month for the four construction methods.
+
+    with_previous_month also returns the weights of the month before the sample,
+    which are needed for that month's realized portfolio volatility.
+    """
     daily, monthly = factors()
     months = sample_months()
+    if with_previous_month:
+        months = months.insert(0, months[0] - pd.offsets.MonthBegin(1))
     return {
         "Equal Weights": equal_weights(months, FACTORS),
         "Equal Risk": equal_risk_weights(daily[FACTORS]).reindex(months),
@@ -81,19 +87,16 @@ def multifactor() -> Strategies:
     """The four multifactor portfolios, unmanaged and volatility-managed (Tables 2-3)."""
     daily, monthly = factors()
     months = sample_months()
-    weights = multifactor_weights()
+    weights = multifactor_weights(with_previous_month=True)
 
     unmanaged, managed, exposure = (pd.DataFrame(index=months) for _ in range(3))
     unmanaged_net, managed_net = pd.DataFrame(index=months), pd.DataFrame(index=months)
     for name in PORTFOLIOS:
-        w = weights[name]
+        risk = realized_volatility(daily_portfolio_returns(daily[FACTORS], weights[name]))
+        w = weights[name].loc[months]
         unmanaged[name] = portfolio_returns(monthly.loc[months], w)
-        risk = realized_volatility(daily_portfolio_returns(daily[FACTORS], w))
         managed[name], exposure[name] = volatility_manage(unmanaged[name], risk)
 
-        # Costs are evaluated from 1980-02, the first month with a managed return.
-        net_months = months[1:]
-        unmanaged_net[name] = unmanaged[name] - transaction_costs(w.loc[net_months])
-        effective = w.loc[net_months].mul(exposure[name], axis=0)
-        managed_net[name] = managed[name] - transaction_costs(effective)
+        unmanaged_net[name] = unmanaged[name] - transaction_costs(w)
+        managed_net[name] = managed[name] - transaction_costs(w.mul(exposure[name], axis=0))
     return Strategies(unmanaged, managed, exposure, unmanaged_net, managed_net)

@@ -1,13 +1,13 @@
 ,,,Mkt-RF,SMB,HML,RMW,CMA,Mom,BAB
-Panel A: no transaction costs,Unmanaged,SR,0.565286,0.054558,0.241455,0.508987,0.371176,0.39201,0.809372
+Panel A: no transaction costs,Unmanaged,SR,0.558681,0.050576,0.23803,0.514655,0.366056,0.382634,0.805633
 Panel A: no transaction costs,Managed,SR,0.629333,-0.032534,0.233783,0.73063,0.348526,0.830516,1.205818
 Panel A: no transaction costs,Comparison,Delta SR,0.070652,-0.08311,-0.004247,0.215974,-0.01753,0.447882,0.400184
 Panel A: no transaction costs,Comparison,p-value,0.1761,0.9571,0.5035,0.0085,0.5813,0.0,0.0
-Panel A: no transaction costs,Managed,alpha (%),2.011593,-0.803603,0.34517,2.563593,0.187546,7.963861,6.505447
+Panel A: no transaction costs,Managed,alpha (%),2.01136,-0.804044,0.345399,2.563974,0.187608,7.953138,6.509828
 Panel A: no transaction costs,Managed,t(alpha),1.720904,-1.685852,0.349288,3.062749,0.391001,4.457999,4.798602
-Panel B: net of costs,Unmanaged,SR,,0.008028,0.182601,0.436809,0.227881,0.007743,0.478821
+Panel B: net of costs,Unmanaged,SR,,0.004071,0.179215,0.442488,0.222809,-0.002152,0.475305
 Panel B: net of costs,Managed,SR,,-0.245535,-0.019751,0.403641,-0.05425,0.147793,0.236249
 Panel B: net of costs,Comparison,Delta SR,,-0.249607,-0.198966,-0.038846,-0.277059,0.149945,-0.239056
 Panel B: net of costs,Comparison,p-value,,1.0,0.9843,0.7131,1.0,0.062,0.9972
-Panel B: net of costs,Managed,alpha (%),,-2.51702,-1.870908,0.332386,-1.822167,2.233024,-1.979689
+Panel B: net of costs,Managed,alpha (%),,-2.518401,-1.872149,0.332435,-1.822775,2.230017,-1.981022
 Panel B: net of costs,Managed,t(alpha),,-5.106353,-1.860424,0.42173,-3.704166,1.554599,-1.627901

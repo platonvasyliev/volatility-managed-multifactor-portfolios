@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from vmp import data
-from vmp.config import FACTORS, WEIGHT_BOUNDS
+from vmp.config import FACTORS, SAMPLE_END, SAMPLE_START, WEIGHT_BOUNDS
 from vmp.factor_portfolios import equal_risk_weights, max_sharpe, min_variance, turnover
 from vmp.inference import bootstrap_sharpe_test, sharpe_ratio
 from vmp.sentiment import HIGH, LOW, prior_year_sentiment, sentiment_regimes
@@ -24,6 +24,13 @@ def test_volatility_management_uses_previous_month_volatility():
     assert np.isnan(managed.iloc[0])  # no volatility estimate before the first month
     expected = 0.05 / vol.shift(1) * returns
     pd.testing.assert_series_equal(managed, expected, check_names=False)
+
+
+def test_volatility_from_before_the_sample_is_used_for_the_first_month():
+    vol = pd.Series(rng.uniform(0.02, 0.08, len(MONTHS)), index=MONTHS)
+    returns = pd.Series(rng.normal(0.01, 0.04, 12), index=MONTHS[24:36])  # sample starts in month 24
+    managed, _ = volatility_manage(returns, vol, c=1)
+    assert managed.iloc[0] == pytest.approx(returns.iloc[0] / vol.iloc[23])
 
 
 def test_volatility_management_has_no_look_ahead():
@@ -102,7 +109,9 @@ def test_sentiment_uses_prior_year_december():
 
 
 def test_data_covers_the_sample_without_gaps():
-    monthly = data.load_monthly_factors().set_index("Date").loc["1980-01":"2025-12", FACTORS]
-    assert len(monthly) == 552 and monthly.notna().all().all()
+    monthly = data.load_monthly_factors().set_index("Date").loc[SAMPLE_START:SAMPLE_END, FACTORS]
+    assert len(monthly) == 551 and monthly.notna().all().all()  # February 1980 to December 2025
     sentiment = data.load_sentiment()
     assert sentiment.set_index("Date").loc["2021-03":"2021-07", "SENT_ORTH"].notna().all()
+    etfs = data.load_etf_prices()
+    assert list(etfs.columns) == ["S&P 500", "Value", "Momentum", "Quality"] and etfs.notna().all().all()

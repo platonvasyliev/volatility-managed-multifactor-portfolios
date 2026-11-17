@@ -30,7 +30,7 @@ def _markdown(df: pd.DataFrame, decimals: int) -> str:
     return "\n".join(lines) + "\n"
 
 
-def save_table(df: pd.DataFrame, name: str, title: str, decimals: int = 2) -> pd.DataFrame:
+def save_table(df: pd.DataFrame, name: str, title: str, decimals: int = 2) -> None:
     """Write results/tables/<name>.csv and .md, and print the table."""
     TABLES_DIR.mkdir(parents=True, exist_ok=True)
     df.round(6).to_csv(TABLES_DIR / f"{name}.csv")
@@ -38,7 +38,6 @@ def save_table(df: pd.DataFrame, name: str, title: str, decimals: int = 2) -> pd
     print(f"\n{title}\n{'=' * len(title)}")
     with pd.option_context("display.width", 200, "display.max_columns", None):
         print(df.round(decimals).to_string())
-    return df
 
 
 def save_figure(fig: plt.Figure, name: str, dpi: int = 300) -> None:

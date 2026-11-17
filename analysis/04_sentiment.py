@@ -10,21 +10,18 @@ from vmp.pipeline import PORTFOLIOS
 from vmp.plotting import seven_panel_figure
 from vmp.reporting import save_figure, save_table
 from vmp.sentiment import HIGH, LOW, sentiment_regimes, sentiment_table
-from vmp.volatility_management import realized_variance
+from vmp.volatility_management import previous_month, realized_variance
 
 
 def figure_6_sharpe_by_sentiment_and_volatility():
     """Sharpe ratios of each factor in the four sentiment x factor-volatility states."""
     daily, _ = pipeline.factors()
-    s = pipeline.single_factors()
-    # Same window as the managed strategies (from 1980-02). The volatility state is the
-    # previous month's variance within this window, so the first month classified is 1980-03.
-    returns = s.unmanaged.loc[s.managed.first_valid_index() : SENTIMENT_END]
+    returns = pipeline.single_factors().unmanaged.loc[:SENTIMENT_END]
     regime = sentiment_regimes(returns.index, data.load_sentiment())
 
     sharpe = {}
     for f in FACTORS:
-        lagged_var = realized_variance(daily[f]).reindex(returns.index).shift(1)
+        lagged_var = previous_month(realized_variance(daily[f]), returns.index)
         df = pd.DataFrame({"r": returns[f], "var": lagged_var, "sent": regime}).dropna()
         df["vol"] = np.where(df["var"] >= df["var"].median(), "High", "Low")
         sharpe[f] = df.groupby(["sent", "vol"])["r"].apply(sharpe_ratio)

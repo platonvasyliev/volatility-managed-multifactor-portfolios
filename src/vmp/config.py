@@ -19,12 +19,14 @@ FACTOR_NAMES = {
     "BAB": "BAB",
 }
 
-# Sample
-SAMPLE_START = "1980-01-01"
+# Sample: returns are evaluated from February 1980. January 1980 (and earlier
+# data) is only used for the first volatility estimates and portfolio weights,
+# so every strategy, managed or not, covers exactly the same 551 months.
+SAMPLE_START = "1980-02-01"
 SAMPLE_END = "2025-12-31"
 SENTIMENT_END = "2023-12-31"  # last year of the Baker-Wurgler index
 SUBPERIODS = {
-    "1980-2002": ("1980-01-01", "2002-12-31"),
+    "1980-2002": ("1980-02-01", "2002-12-31"),
     "2003-2025": ("2003-01-01", "2025-12-31"),
 }
 
@@ -46,6 +48,4 @@ NEWEY_WEST_LAGS = 12
 
 # Factor ETFs (Table 6)
 ETF_TICKERS = {"SPY": "S&P 500", "VLUE": "Value", "MTUM": "Momentum", "QUAL": "Quality"}
-ETF_DOWNLOAD_START = "2013-07-01"
-ETF_DOWNLOAD_END = "2024-01-01"
-ETF_SAMPLE_START = "2013-08-01"
+ETF_SAMPLE_START = "2013-08-01"  # first full month in which all four ETFs trade

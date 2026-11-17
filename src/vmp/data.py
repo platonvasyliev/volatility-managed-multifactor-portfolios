@@ -6,7 +6,7 @@ first day of the month.
 
 import pandas as pd
 
-from .config import DATA_DIR, ETF_DOWNLOAD_END, ETF_DOWNLOAD_START, ETF_TICKERS
+from .config import DATA_DIR, ETF_TICKERS
 
 
 def _read_french(name: str, date_format: str) -> pd.DataFrame:
@@ -56,16 +56,11 @@ def load_sentiment() -> pd.DataFrame:
     return df[["Date", "SENT_ORTH"]].reset_index(drop=True)
 
 
-def download_etf_prices() -> pd.DataFrame:
-    """Daily adjusted close prices of SPY, VLUE, MTUM and QUAL from Yahoo Finance."""
-    import yfinance as yf
+def load_etf_prices() -> pd.DataFrame:
+    """Daily adjusted close prices of SPY, VLUE, MTUM and QUAL (Yahoo Finance snapshot).
 
-    raw = yf.download(
-        tickers=list(ETF_TICKERS),
-        start=ETF_DOWNLOAD_START,
-        end=ETF_DOWNLOAD_END,
-        auto_adjust=False,
-        progress=False,
-    )
-    prices = raw["Adj Close"].rename(columns=ETF_TICKERS)
-    return prices[list(ETF_TICKERS.values())].dropna()
+    Only days on which all four ETFs trade are kept, so the sample starts when
+    QUAL launched (18 July 2013).
+    """
+    prices = pd.read_csv(DATA_DIR / "etf_prices_daily.csv", index_col="Date", parse_dates=True)
+    return prices.rename(columns=ETF_TICKERS).dropna()

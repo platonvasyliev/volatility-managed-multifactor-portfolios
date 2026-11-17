@@ -88,7 +88,6 @@ def bootstrap_sharpe_test(
     idx = _stationary_bootstrap_indices(len(x), samples, avg_block, seed)
     diffs = _sharpe_rows(x[idx]) - _sharpe_rows(y[idx])
     return {
-        "n": len(x),
         "sr_managed": sr_x,
         "sr_unmanaged": sr_y,
         "sr_diff": sr_x - sr_y,
@@ -96,31 +95,20 @@ def bootstrap_sharpe_test(
     }
 
 
-def jobson_korkie_memmel_test(managed: pd.Series, unmanaged: pd.Series) -> dict:
-    """Jobson-Korkie test with the Memmel (2003) correction; one-sided p-value."""
+def jobson_korkie_memmel_p_value(managed: pd.Series, unmanaged: pd.Series) -> float:
+    """One-sided p-value of the Jobson-Korkie test with the Memmel (2003) correction."""
     x, y = _aligned(managed, unmanaged)
-    n = len(x)
     sr1, sr2 = x.mean() / x.std(ddof=1), y.mean() / y.std(ddof=1)
     rho = np.corrcoef(x, y)[0, 1]
-    var = (2 * (1 - rho) + 0.5 * sr1**2 + 0.5 * sr2**2 - rho * sr1 * sr2) / n
-    z = (sr1 - sr2) / np.sqrt(var)
-    return {
-        "n": n,
-        "sr_diff": (sr1 - sr2) * np.sqrt(MONTHS_PER_YEAR),
-        "z": z,
-        "p_value": 1 - norm.cdf(z),
-    }
+    var = (2 * (1 - rho) + 0.5 * sr1**2 + 0.5 * sr2**2 - rho * sr1 * sr2) / len(x)
+    return 1 - norm.cdf((sr1 - sr2) / np.sqrt(var))
 
 
 def spanning_regression(managed: pd.Series, unmanaged: pd.Series, lags: int = NEWEY_WEST_LAGS) -> dict:
     """managed = alpha + beta * unmanaged + e, with Newey-West standard errors."""
     x, y = _aligned(managed, unmanaged)
     model = sm.OLS(x, sm.add_constant(y)).fit(cov_type="HAC", cov_kwds={"maxlags": lags})
-    return {
-        "alpha_annual": model.params[0] * MONTHS_PER_YEAR,
-        "t_alpha": model.tvalues[0],
-        "beta": model.params[1],
-    }
+    return {"alpha_annual": model.params[0] * MONTHS_PER_YEAR, "t_alpha": model.tvalues[0]}
 
 
 def compare(managed: pd.Series, unmanaged: pd.Series) -> dict:

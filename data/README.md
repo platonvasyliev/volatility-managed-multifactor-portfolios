@@ -10,10 +10,17 @@ history, so freshly downloaded files will give slightly different numbers.
 | `ff_momentum_daily.csv`, `ff_momentum_monthly.csv` | Momentum factor (Mom), in percent | daily / monthly | Kenneth R. French Data Library |
 | `aqr_bab_daily.csv`, `aqr_bab_monthly.csv` | U.S. Betting-Against-Beta factor, in decimals | daily / monthly | [AQR: Betting Against Beta: Equity Factors](https://www.aqr.com/Insights/Datasets/Betting-Against-Beta-Equity-Factors-Monthly) |
 | `baker_wurgler_sentiment.csv` | Baker-Wurgler investor sentiment index (`SENT`) and the version orthogonalized to macro conditions (`SENT_ORTH`) | monthly | [Jeffrey Wurgler's website](https://pages.stern.nyu.edu/~jwurgler/) (data updated May 31, 2024) |
+| `etf_prices_daily.csv` | Adjusted close prices of SPY, VLUE, MTUM and QUAL, July 2013 to December 2023 (QUAL starts on 18 July 2013) | daily | Yahoo Finance |
 
-Downloaded in April-May 2026. The ETF prices for Table 6 (SPY, VLUE, MTUM,
-QUAL) are not stored here; `vmp.data.download_etf_prices()` fetches them from
-Yahoo Finance when the analysis runs.
+The factor and sentiment files were downloaded in April-May 2026, the ETF prices
+in November 2026. Yahoo Finance adjusts past prices for dividends and splits
+(MTUM and QUAL had 4-for-1 splits on 5 November 2026, so their price levels are a
+quarter of the historical quotes); returns are unaffected. The ETF file was created with:
+
+```python
+import yfinance as yf
+yf.download(["SPY", "VLUE", "MTUM", "QUAL"], start="2013-07-01", end="2024-01-01", auto_adjust=False)["Adj Close"]
+```
 
 ## Changes made to the original files
 

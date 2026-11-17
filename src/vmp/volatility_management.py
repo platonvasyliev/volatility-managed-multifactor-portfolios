@@ -32,10 +32,17 @@ def realized_variance(daily: pd.Series) -> pd.Series:
     return _to_month_start(_by_month(daily).var() * TRADING_DAYS_PER_MONTH)
 
 
+def previous_month(monthly: pd.Series | pd.DataFrame, index: pd.DatetimeIndex) -> pd.Series | pd.DataFrame:
+    """Value of the previous calendar month, aligned to `index` (month-start dates)."""
+    lagged = monthly.copy()
+    lagged.index = lagged.index + pd.offsets.MonthBegin(1)
+    return lagged.reindex(index)
+
+
 def volatility_manage(
     monthly: pd.Series, risk: pd.Series, c: float | None = None
 ) -> tuple[pd.Series, pd.Series]:
-    """Scale next month's exposure by this month's risk estimate.
+    """Scale each month's exposure by the previous month's risk estimate.
 
     Parameters
     ----------
@@ -45,10 +52,10 @@ def volatility_manage(
 
     Returns
     -------
-    managed returns and the exposure c / risk[t-1]. The first month of the
-    sample has no lagged risk estimate, so both are NaN there.
+    managed returns and the exposure c / risk[t-1] (NaN where no risk
+    estimate for the previous month exists).
     """
-    lagged = risk.reindex(monthly.index).shift(1)
+    lagged = previous_month(risk, monthly.index)
     raw = monthly / lagged
     if c is None:
         c = monthly.std() / raw.std()

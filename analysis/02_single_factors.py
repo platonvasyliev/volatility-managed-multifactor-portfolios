@@ -6,27 +6,27 @@ import pandas as pd
 
 from vmp import pipeline
 from vmp.config import FACTOR_NAMES, FACTORS
-from vmp.inference import compare, describe, jobson_korkie_memmel_test
+from vmp.inference import compare, describe, jobson_korkie_memmel_p_value
 from vmp.plotting import plt, seven_panel_figure
 from vmp.reporting import save_figure, save_table
+from vmp.volatility_management import previous_month
 
 
 def figure_2_risk_return_tradeoff():
-    """Next-month factor return divided by this month's realized factor variance,
-    averaged within terciles of this month's market volatility (DeMiguel et al., 2024, Fig. 1)."""
+    """Factor return in month t divided by the factor's realized variance in month t-1,
+    averaged within terciles of month t-1 market volatility (DeMiguel et al., 2024, Fig. 1)."""
     daily, _ = pipeline.factors()
     returns = pipeline.single_factors().unmanaged
-    in_sample = daily.loc[returns.index[0] : returns.index[-1] + pd.offsets.MonthEnd(0)]
-    by_month = in_sample.groupby(in_sample.index.to_period("M"))
-    market_vol = by_month["Mkt-RF"].std().to_timestamp()
-    variance = by_month[FACTORS].var().to_timestamp()
+    by_month = daily.groupby(daily.index.to_period("M"))
+    market_vol = previous_month(by_month["Mkt-RF"].std().to_timestamp(), returns.index)
+    variance = previous_month(by_month[FACTORS].var().to_timestamp(), returns.index)
 
     terciles = pd.cut(
         market_vol,
         bins=[-np.inf, market_vol.quantile(0.33), market_vol.quantile(0.66), np.inf],
         labels=["Low", "Medium", "High"],
     )
-    tradeoff = returns.shift(-1) / variance
+    tradeoff = returns / variance
     # Daily (not monthly) variance is used, and the result is divided by 10 for readability.
     plot = tradeoff.groupby(terciles, observed=True).mean()[FACTORS] / 10
 
@@ -87,7 +87,7 @@ def figure_3_cumulative_returns():
         ax.set_title(f, pad=8)
         ax.set_yscale("log")
         ax.yaxis.set_major_locator(mticker.LogLocator(base=10, subs=(1, 2, 5)))
-        ax.yaxis.set_major_formatter(mticker.ScalarFormatter())
+        ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{v:g}"))
         ax.yaxis.set_minor_formatter(mticker.NullFormatter())
         ax.grid(True)
     fig.legend([l1, l2], ["Unmanaged", "VM Managed"], loc="lower left", bbox_to_anchor=(0.08, 0.025), frameon=False)
@@ -101,7 +101,7 @@ def table_a7_bootstrap_vs_jkm(gross: pd.DataFrame):
         rows[FACTOR_NAMES[f]] = {
             "Delta SR": gross.loc[("Comparison", "Delta SR"), f],
             "Bootstrap p-value": gross.loc[("Comparison", "p-value"), f],
-            "JKM one-sided p-value": jobson_korkie_memmel_test(s.managed[f], s.unmanaged[f])["p_value"],
+            "JKM one-sided p-value": jobson_korkie_memmel_p_value(s.managed[f], s.unmanaged[f]),
         }
     save_table(pd.DataFrame(rows), "table_A7_bootstrap_vs_jkm_single", "Table A7: bootstrap vs JKM test, single factors", 3)
 

@@ -1,12 +1,13 @@
 """Results: Multifactor portfolios. Table A4, Figure 4, Figures 5a-5b, Table 2 (A5), Table 3, Table A8."""
 
+import matplotlib.ticker as mticker
 import numpy as np
 import pandas as pd
 from scipy.stats import t as student_t
 
 from vmp import pipeline
 from vmp.config import FACTORS, SAMPLE_END, SAMPLE_START, SUBPERIODS
-from vmp.inference import compare, describe, jobson_korkie_memmel_test, max_drawdown
+from vmp.inference import compare, describe, jobson_korkie_memmel_p_value, max_drawdown
 from vmp.pipeline import PORTFOLIOS
 from vmp.plotting import plt, stacked_weights
 from vmp.reporting import save_figure, save_table
@@ -55,6 +56,7 @@ def figure_5a_cumulative_returns():
         l1, = ax.plot(m.unmanaged.index, (1 + m.unmanaged[name]).cumprod(), linewidth=2, color="gray")
         l2, = ax.plot(m.managed.index, (1 + m.managed[name]).cumprod(), linewidth=2, linestyle="--", color="black")
         ax.set_yscale("log")
+        ax.yaxis.set_minor_formatter(mticker.NullFormatter())
         ax.set_title(name)
         if i in (0, 2):
             ax.set_ylabel("Cumulative return")
@@ -107,10 +109,7 @@ SUMMARY_ROWS = [("Unmanaged", "SR"), ("Managed", "SR"), ("Comparison", "Delta SR
 
 def table_2_multifactor():
     m = pipeline.multifactor()
-    # The full-sample panel covers the months with a managed return (1980-02 onward);
-    # the two subsamples split the calendar sample in half (1980-01 to 2002-12, 2003-01 to 2025-12).
-    first_managed_month = m.managed.first_valid_index()
-    periods = {"Full sample 1980-2025": (first_managed_month, SAMPLE_END)}
+    periods = {"Full sample 1980-2025": (SAMPLE_START, SAMPLE_END)}
     periods |= {f"Subsample {k}": v for k, v in SUBPERIODS.items()}
     panels = {
         label: _multifactor_panels(
@@ -137,7 +136,7 @@ def table_a8_bootstrap_vs_jkm(full: pd.DataFrame):
             name: {
                 "Delta SR": full.loc[("Comparison", "Delta SR"), name],
                 "Bootstrap p-value": full.loc[("Comparison", "p-value"), name],
-                "JKM one-sided p-value": jobson_korkie_memmel_test(m.managed[name], m.unmanaged[name])["p_value"],
+                "JKM one-sided p-value": jobson_korkie_memmel_p_value(m.managed[name], m.unmanaged[name]),
             }
             for name in PORTFOLIOS
         }
